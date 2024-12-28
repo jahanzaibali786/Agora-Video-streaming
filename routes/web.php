@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\TestPusherEvent;
+use App\Http\Controllers\Callcontroller;
 use App\Http\Controllers\StreamingController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/test-pusher', function () {
+    broadcast(new TestPusherEvent('Hello, Pusher!'));
+    return 'Event has been sent!';
+});
 // Route::middleware('auth')->group(function () {  \\ can apply if authentication is integrated in project
     Route::get('/stream/noposter', function () {
         // dd(auth()->id());
@@ -31,5 +37,7 @@ Route::get('/', function () {
     Route::post('/stream/stop', [StreamingController::class, 'stop'])->name('stream.stop');
 
     //calling 
-    Route::get('/privatecall',[Callcontroller::class,'index'])->name('privatecall');
+    Route::get('/privatecall', [Callcontroller::class, 'index'])->name('privatecall');
+    Route::post('/call', [CallController::class, 'initiateCall'])->name('call.initiate');
+    Route::post('/call/token', [CallController::class, 'generateToken'])->name('call.token');
 // });
