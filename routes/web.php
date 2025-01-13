@@ -3,6 +3,8 @@
 use App\Events\TestPusherEvent;
 use App\Http\Controllers\Callcontroller;
 use App\Http\Controllers\StreamingController;
+use App\Models\Group;
+use App\Models\GroupUsers;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +24,11 @@ Route::get('/', function () {
 Route::get('/test-pusher', function () {
     broadcast(new TestPusherEvent('Hello, Pusher!'));
     return 'Event has been sent!';
+});
+Route::get('messanger',function(){
+    $groups = Group::where('creatorId', auth()->id())->get();
+    $groupusers = GroupUsers::with('groups', 'seenMessages')->where('user_id', auth()->id())->get();
+    return view('messanger.chat');
 });
 // Route::middleware('auth')->group(function () {  \\ can apply if authentication is integrated in project
     Route::get('/stream/noposter', function () {
