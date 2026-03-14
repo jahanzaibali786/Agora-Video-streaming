@@ -2,49 +2,46 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // ← changed
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class IncomingCall implements ShouldBroadcast
+class IncomingCall implements ShouldBroadcastNow // ← changed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $caller;
     public $recipientId;
     public $channelName;
+    public $callType;
 
-    public function __construct($caller, $recipientId, $channelName)
+    public function __construct($caller, $recipientId, $channelName, $callType = 'audio')
     {
-        $this->caller = $caller;
+        $this->caller      = $caller;
         $this->recipientId = $recipientId;
         $this->channelName = $channelName;
+        $this->callType    = $callType;
     }
 
     public function broadcastOn()
     {
-        return new Channel('user.' . $this->recipientId); 
+        return new PrivateChannel('user.' . $this->recipientId);
     }
 
-    // public function broadcastWith()
-    // {
-    //     return [
-    //         'caller' => $this->caller,
-    //         'channelName' => $this->channelName,
-    //     ];
-    // }
     public function broadcastWith()
     {
         return [
             'caller' => [
-                'id' => $this->caller->id,
+                'id'   => $this->caller->id,
                 'name' => $this->caller->name,
             ],
             'channel_name' => $this->channelName,
+            'callType'     => $this->callType,
         ];
     }
+
     public function broadcastAs()
     {
         return 'incoming-call';

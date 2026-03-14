@@ -21,12 +21,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var array<string, string>
      */
     protected $hidden = [
         'password',
@@ -41,4 +42,29 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Groups this user belongs to (via group_users pivot).
+     */
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_users', 'user_id', 'group_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Groups this user has created.
+     */
+    public function createdGroups()
+    {
+        return $this->hasMany(Group::class, 'creatorId');
+    }
+
+    /**
+     * Messages this user has sent in groups.
+     */
+    public function groupMessages()
+    {
+        return $this->hasMany(GroupMessages::class, 'from_id');
+    }
 }
